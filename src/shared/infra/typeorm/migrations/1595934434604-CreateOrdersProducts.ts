@@ -1,12 +1,11 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export default class CreateProducts1595800784440 implements MigrationInterface {
+export default class CreateOrdersProducts1595934434604
+  implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
-
     await queryRunner.createTable(
       new Table({
-        name: 'products',
+        name: 'orders_products',
         columns: [
           {
             name: 'id',
@@ -16,19 +15,26 @@ export default class CreateProducts1595800784440 implements MigrationInterface {
             default: 'uuid_generate_v4()',
           },
           {
-            name: 'name',
-            type: 'varchar',
-            isUnique: true,
+            name: 'product_id',
+            type: 'uuid',
+            isNullable: true,
+          },
+          {
+            name: 'order_id',
+            type: 'uuid',
+            isNullable: true,
           },
           {
             name: 'price',
             type: 'decimal',
             precision: 10,
             scale: 2,
+            isNullable: true,
           },
           {
             name: 'quantity',
             type: 'integer',
+            isNullable: true,
           },
           {
             name: 'created_at',
@@ -41,11 +47,29 @@ export default class CreateProducts1595800784440 implements MigrationInterface {
             default: 'now()',
           },
         ],
+        foreignKeys: [
+          {
+            name: 'ProductId',
+            referencedTableName: 'products',
+            referencedColumnNames: ['id'],
+            columnNames: ['product_id'],
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE',
+          },
+          {
+            name: 'OrderId',
+            referencedTableName: 'orders',
+            referencedColumnNames: ['id'],
+            columnNames: ['order_id'],
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE',
+          },
+        ],
       }),
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('products');
+    await queryRunner.dropTable('orders_products');
   }
 }
